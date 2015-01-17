@@ -1,0 +1,33 @@
+Bin			10	Hex
+        0	0	0
+        1	1	1
+       10	2	2
+       11	3	3
+      100	4	4
+      101	5	5
+      110	6	6
+      111	7	7
+     1000	8	8
+     1001	9	9
+     1010	10	a	<--- Aquí estic afegint un dígit en la representació decimal però no en la binaria
+     1011	11	b
+     1100	12	c
+     1101	13	d
+     1110	14	e
+     1111	15	f
+   1 0000	16 10	<--- Correspondència entre incrementar al segon dígit hexadecimal i incrementar al cinquè bit binari
+
+Això vol dir que en decimal no tinc manera de fer correspondre blocs de bits binaris en dígits decimals. En canvi, sí que puc associar cada bloc de quatre bits binaris amb un dígit decimal. Per tant, el resultat de convertir a hexadecimal:
+
+10001101 -> 8D
+
+És el mateix que interpretant "dígit a dígit":
+
+1000 -> 8
+1101 -> D
+
+=> 1000 1101 -> 8D
+
+Total, que cada dígit hexadecimal correspon a un bloc de quatre bits, i per tant dos dígits hexadecimals respresenten un byte.
+
+En base 64, cada dígit correspondria a 6 bits (2⁶ = 64)
