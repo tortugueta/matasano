@@ -5,7 +5,7 @@
 # Single-byte XOR cipher
 
 import sys
-sys.path.append('/home/joan/Programming/the matasano cryptography challenges/')
+sys.path.append('/home/joan/Programming/matasano/')
 import matasanolib
 
 # The string we have initially is the hex representation of a string of bits

@@ -5,11 +5,11 @@
 # Detect single-character XOR
 
 import sys
-sys.path.append('/home/joan/Programming/the matasano cryptography challenges/')
+sys.path.append('/home/joan/Programming/matasano/')
 import matasanolib
 
 # Read the messages list from a file
-file = open('/home/joan/Programming/the matasano cryptography challenges/set1.challenge4.keylist', 'r')
+file = open('/home/joan/Programming/matasano/set1.challenge4.keylist', 'r')
 messagelist = []
 for message in file:
 	messagelist.append(message.strip())

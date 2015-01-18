@@ -7,13 +7,13 @@
 # review everything to make it work again.
 
 import sys
-sys.path.append('/home/joan/Programming/the matasano cryptography challenges/')
+sys.path.append('/home/joan/Programming/matasano/')
 import matasanolib
 import string
 import numpy as np
 
 # Read the file with the base64-encoded encrypted string
-path = "/home/joan/Programming/the matasano cryptography challenges/" + \
+path = "/home/joan/Programming/matasano/" + \
 	"set1.challenge6.encrypted.txt"
 hfile = open(path, "r")
 message = ""
@@ -30,22 +30,12 @@ for line in hfile:
 padding = 0
 if message[-1] == "=":
 	padding += 1
-	message = message[:-1] + 'A'
 if message[-2] == "=":
 	padding += 1
-	message = messabe[:-2] + 'AA'
 
-message = [message[i:i+4] for i in range(0, len(message), 4)]
-message = [matasanolib.b64toint(block) for block in message]
-hexmessage = ""
-for block in message:
-	hexmessage += '%06x' % block
-if padding == 1:
-	hexmessage = hexmessage[:-2]
-elif padding == 2:
-	hexmessage = hexmessage[:-4]
+asciimessage = matasanolib.b64toascii(message)
 
-# Once we have the hex string, we can start the process of deducing the key
+# Once we have the ascii string, we can start the process of deducing the key
 # length
 
 minlength = 1
@@ -57,8 +47,8 @@ meandist_list = np.zeros(len(keysize_list), np.float64)
 # distance between contiguous blocks of size equal to that of the key. We will
 # calculate the distance between all contiguous blocks and calculate the average
 for (index, keysize) in enumerate(keysize_list):
-	# Partition the hex string in blocks of size keysize
-	partition = [hexmessage[i:i+2*keysize] for i in range(0, len(hexmessage), 2*keysize)]
+	# Partition the string in blocks of size keysize
+	partition = [asciimessage[i:i+keysize] for i in range(0, len(asciimessage), keysize)]
 
 	# Calculate the distance between all the contiguous pairs (except the last
 	# two, because it could happen that the last one is shorter than the second
@@ -81,17 +71,17 @@ probkeysize = keysize_list[indexminimum]
 
 # Check that it's divisible, and if not, calculate how many padding bytes should
 # be added, and add them.
-messagelen = len(hexmessage) / 2
+messagelen = len(asciimessage)
 remainder = messagelen % probkeysize
 if remainder != 0:
 	padding = probkeysize - remainder
-	hexmessage += '00' * padding
+	asciimessage += '\x00' * padding
 else:
 	padding = 0
 
 # Partition
-partition = [hexmessage[i:i+probkeysize*2]
-	for i in range(0, len(hexmessage), probkeysize*2)]
+partition = [asciimessage[i:i+probkeysize]
+	for i in range(0, len(asciimessage), probkeysize)]
 
 # If we create a matrix in which every row is one of those encrypted blocks,
 # with a character in each column, then it's clear that each column of the
@@ -103,14 +93,14 @@ partition = [hexmessage[i:i+probkeysize*2]
 # will have a good candidate to the complete key.
 
 for (index, block) in enumerate(partition):
-	partition[index] = [int(block[i:i+2], base=16) for i in range(0, len(block), 2)]
+	partition[index] = [ord(i) for i in block]
 partition = np.array(partition, np.int8)
 
 # Decrypt each column with a repeating key of a single character. Change the
 # repeating character until we get a potentially good result, and put that in
 # a list.
 #
-# Important! Ath this point we need a bit of interactivity, adjusting the
+# Important! At this point we need a bit of interactivity, adjusting the
 # filtering factor to make sure that we have at least one candidate fore each
 # character of the key.
 
@@ -135,7 +125,7 @@ for charline in partition.T:
 			#decryptedtxt += chr(char)
 
 		# Filter the text according to the percent of letters
-		if matasanolib.filterstring_alpha(decryptedtxt, 0.8):
+		if matasanolib.filterstring_alpha(decryptedtxt, 0.90):
 			linecandidates.append(keychar)
 
 	candidates.append(linecandidates)
@@ -152,13 +142,13 @@ for (columna, candidats) in enumerate(candidates):
 	numcandidats = len(candidats)
 	divisions *= numcandidats
 	for i in range(0, numclaus):
-		numparticio = int(floor(i / (numclaus/divisions)))
+		numparticio = int(np.floor(i / (numclaus/divisions)))
 		llistaclaus[i, columna] = candidats[numparticio % numcandidats]
 
 # Code to print the possible keys to a file, to see if we can identify the
 # good one manually. The write method converts directly the integer numpy array
 # to ascii characters
-harxiu = open("/home/joan/claus.txt", 'w')
+harxiu = open("set1.challenge6.claus.txt", 'w')
 for clau in llistaclaus:
 	harxiu.write(clau)
 	harxiu.write("\n")
@@ -168,31 +158,19 @@ harxiu.close()
 # the results to keep the best.
 
 # Start removing the padding we added to the hex string
-hexmessage = hexmessage[:-(2 * padding)]
-
-# Divide the sequence in blocks of 8 bits
-intmessage = [int(hexmessage[i:i+2], base=16) for i in range(0, len(hexmessage), 2)]
-intmessage = np.array(intmessage, np.int8)
+asciimessage = asciimessage[:-padding]
 
 # For each key, decrypt and filter. Print the result to standard output and file
-arxiu = open("/home/joan/desencriptat.txt", "w")
+arxiu = open("set1.challenge6.desencriptat.txt", "w")
 for (idx, key) in enumerate(llistaclaus):
-	decrypted = matasanolib.decrypt_repeating(intmessage, key)
-
-	# Build the ascii string of message and key
-	decryptedtxt = ""
-	for character in decrypted:
-		decryptedtxt += chr(character)
-
-	keytxt = ""
-	for character in key:
-		keytxt += chr(character)
+	key = "".join([chr(i) for i in key])
+	decrypted = matasanolib.decrypt_repeating(asciimessage, key)
 
 	# Filter
-	if matasanolib.filterstring_alpha(decryptedtxt, 0.90):
-		print(idx, keytxt, decryptedtxt)
+	if matasanolib.filterstring_alpha(decrypted, 0.90):
+		print(idx, key, decrypted)
 		print("\n")
-		arxiu.write("%d / %s\n%s\n\n" % (idx, keytxt, decryptedtxt))
+		arxiu.write("%d / %s\n%s\n\n" % (idx, key, decrypted))
 
 arxiu.close()
 

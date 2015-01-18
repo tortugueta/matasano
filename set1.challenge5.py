@@ -5,7 +5,7 @@
 # Implement repeating-key XOR
 
 import sys
-sys.path.append('/home/joan/Programming/the matasano cryptography challenges/')
+sys.path.append('/home/joan/Programming/matasano/')
 import matasanolib
 
 msg = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"
